@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Un date ? 💕</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #ffe4ec, #f3d4e6, #e8c4db);
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      color: #6b3a5a;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Response banner */
+    #bandeauReponse {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #b8e0b0;
+      color: #2d5a2a;
+      text-align: center;
+      padding: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: none;
+      animation: slideDown 0.5s ease-out forwards;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
+
+    /* Floating hearts background container */
+    .hearts-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: -50px;
+      color: rgba(212, 90, 138, 0.4);
+      animation: floatUp 6s linear infinite;
+      font-size: 20px;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+      }
+      90% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-110vh) translateX(50px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Confetti container */
+    .confetti-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -30px;
+      animation: fallConfetti linear forwards;
+    }
+
+    @keyframes fallConfetti {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(105vh) rotate(720deg) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* Main card */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      max-width: 460px;
+      width: 90%;
+      padding: 40px 28px;
+      border-radius: 48px;
+      box-shadow: 0 20px 40px rgba(107, 58, 90, 0.15);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 28px 16px;
+        border-radius: 36px;
+      }
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #6b3a5a;
+      margin-top: 0;
+      margin-bottom: 24px;
+      line-height: 1.3;
+    }
+
+    p {
+      color: #8a5a7a;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    /* Buttons */
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      outline: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.06);
+    }
+
+    button:active {
+      transform: scale(0.94);
+    }
+
+    .btn-oui {
+      background-color: #b8e0b0;
+      color: #2d5a2a;
+      padding: 16px 36px;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      box-shadow: 0 8px 20px rgba(184, 224, 176, 0.4);
+      margin: 10px;
+    }
+
+    .btn-non {
+      background-color: #f5b8b8;
+      color: #7a3a3a;
+      padding: 16px 36px;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      box-shadow: 0 8px 20px rgba(245, 184, 184, 0.4);
+      margin: 10px;
+    }
+
+    /* Shake animation for Non button */
+    @keyframes shakeBtn {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    .shake {
+      animation: shakeBtn 0.4s ease-in-out;
+    }
+
+    /* Non message bubbles */
+    #messagesNon {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .non-bubble {
+      background: rgba(255, 255, 255, 0.7);
+      color: #9a4a5a;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(107, 58, 90, 0.08);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.5s ease forwards;
+      max-width: 100%;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Hidden utility */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Step 2 specific styles */
+    .youpi {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d45a8a;
+      margin-bottom: 8px;
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    .choix-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .choix-group button {
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #6b3a5a;
+      padding: 14px 20px;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      border: 1px solid rgba(212, 90, 138, 0.3);
+      box-shadow: 0 4px 10px rgba(107, 58, 90, 0.05);
+      width: 100%;
+    }
+
+    .choix-group button:hover {
+      background-color: #d45a8a;
+      color: white;
+      border-color: #d45a8a;
+    }
+
+    #reponseAffichee {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #d45a8a;
+      margin: 16px 0;
+      word-break: break-word;
+    }
+
+    #messageFinal {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #6b3a5a;
+      line-height: 1.4;
+    }
+
+    #psFooter {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #8a5a7a;
+      border-top: 1px solid rgba(107, 58, 90, 0.1);
+      padding-top: 16px;
+    }
+
+    #psFooter p {
+      margin: 6px 0;
+      font-size: 0.9rem;
+      color: #8a5a7a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating hearts background -->
+  <div class="hearts-container"></div>
+  
+  <!-- Confetti container -->
+  <div class="confetti-container"></div>
+  
+  <!-- Response banner -->
+  <div id="bandeauReponse"></div>
+  
+  <!-- Main card -->
+  <div class="card">
+    
+    <!-- Step 1: Question -->
+    <div id="etapeQuestion">
+      <h1>Ça te dit un date avec moi ? 💕</h1>
+      <p>(réponds sincèrement)</p>
+      <div>
+        <button class="btn-oui" id="btnOui">Oui</button>
+        <button class="btn-non" id="btnNon">Non</button>
+      </div>
+      <div id="messagesNon"></div>
+    </div>
+    
+    <!-- Step 2: Youpi + Choices -->
+    <div id="etapeChoix" class="hidden">
+      <div class="youpi">YOUPIIIIII ! 🥳</div>
+      <p>Trop content(e) ! ❤️</p>
+      <p style="font-weight: 600; margin-top: 10px;">On fait quoi ?</p>
+      <div class="choix-group" id="choixGroupContainer">
+        <button data-activite="Resto 🍝">Resto 🍝</button>
+        <button data-activite="Zoo 🦁">Zoo 🦁</button>
+        <button data-activite="Ciné 🎬">Ciné 🎬</button>
+        <button data-activite="Les 3 😍">Les 3 😍</button>
+      </div>
+      <div id="choixAffiche"></div>
+      <div id="messageFinal"></div>
+      <div id="psFooter" class="hidden">
+        <p>📸 Ps : prends une capture d'écran pour m'envoyer ta réponse</p>
+        <p>Fait avec beaucoup d'❤️</p>
+      </div>
+    </div>
+    
+    <!-- Step 3: Response view -->
+    <div id="etapeReponse" class="hidden">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">💖</div>
+      <h1>Elle a répondu !</h1>
+      <div id="reponseAffichee"></div>
+      <p style="margin-top: 16px;">Hâte de la voir ! 🥰</p>
+      <p style="font-size: 0.9rem; margin-top: 30px; border-top: 1px solid rgba(107, 58, 90, 0.1); padding-top: 16px;">Fait avec beaucoup d'❤️</p>
+    </div>
+    
+  </div>
+  
+  <script>
+    // State management
+    let messagesNonIndex = 0;
+    let activiteChoisie = '';
+    
+    const messagesNonData = [
+      { text: "Vraiment ?", emoji: "😢" },
+      { text: "Tu es sûre ?", emoji: "🥺" },
+      { text: "S'il te plaît…", emoji: "💔" },
+      { text: "Laisse-moi une chance ?", emoji: "🌸" }
+    ];
+
+    // Floating hearts generator
+    const heartsContainer = document.querySelector('.hearts-container');
+    const heartSymbols = ['❤️', '💕', '💖', '💗', '💓', '✨'];
+
+    function createFloatingHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'floating-heart';
+      heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+      heart.style.fontSize = (Math.random() * 16 + 14) + 'px';
+      heartsContainer.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 7000);
+    }
+
+    setInterval(createFloatingHeart, 600);
+
+    // Confetti generator function
+    function triggerConfetti() {
+      const confettiContainer = document.querySelector('.confetti-container');
+      const confettiEmojis = ['🎉', '⭐', '✨', '💖', '🌈', '🎊', '🌸', '🥳'];
+      
+      for (let i = 0; i < 50; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.textContent = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.fontSize = (Math.random() * 30 + 18) + 'px';
+        piece.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        confettiContainer.appendChild(piece);
+      }
+
+      setTimeout(() => {
+        confettiContainer.innerHTML = '';
+      }, 5000);
+    }
+
+    // DOM Elements
+    const etapeQuestion = document.getElementById('etapeQuestion');
+    const etapeChoix = document.getElementById('etapeChoix');
+    const etapeReponse = document.getElementById('etapeReponse');
+    const btnOui = document.getElementById('btnOui');
+    const btnNon = document.getElementById('btnNon');
+    const messagesNonContainer = document.getElementById('messagesNon');
+    const choixGroupContainer = document.getElementById('choixGroupContainer');
+    const choixAffiche = document.getElementById('choixAffiche');
+    const messageFinal = document.getElementById('messageFinal');
+    const psFooter = document.getElementById('psFooter');
+    const bandeauReponse = document.getElementById('bandeauReponse');
+
+    // URL Parameter & sessionStorage checks on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const reponseParam = urlParams.get('reponse');
+      const storedResponse = sessionStorage.getItem('dateResponse');
+
+      if (reponseParam) {
+        // Step 5: Sender Response View (URL Parameter)
+        etapeQuestion.classList.add('hidden');
+        etapeChoix.classList.add('hidden');
+        etapeReponse.classList.remove('hidden');
+        
+        reponseAffichee.textContent = decodeURIComponent(reponseParam);
+        
+        bandeauReponse.textContent = `💕 Sa réponse : ${decodeURIComponent(reponseParam)}`;
+        bandeauReponse.style.display = 'block';
+
+        triggerConfetti();
+      } else if (storedResponse) {
+        // Same device fallback using sessionStorage
+        etapeQuestion.classList.add('hidden');
+        etapeReponse.classList.add('hidden');
+        etapeChoix.classList.remove('hidden');
+
+        choixGroupContainer.classList.add('hidden');
+        choixAffiche.innerHTML = `<div style="font-size: 1.5rem; font-weight: 700; color: #d45a8a; margin: 15px 0;">${storedResponse}</div>`;
+        messageFinal.textContent = `C'est noté ! À ton retour pour le ${storedResponse}… hâte de te voir ❤️`;
+        psFooter.classList.remove('hidden');
+
+        bandeauReponse.textContent = `💕 Sa réponse : ${storedResponse}`;
+        bandeauReponse.style.display = 'block';
+      }
+    });
+
+    // "Non" Button Interaction Flow
+    btnNon.addEventListener('click', () => {
+      // Button shake
+      btnNon.classList.remove('shake');
+      void btnNon.offsetWidth; // trigger reflow
+      btnNon.classList.add('shake');
+
+      if (messagesNonIndex < messagesNonData.length) {
+        const item = messagesNonData[messagesNonIndex];
+        const bubble = document.createElement('div');
+        bubble.className = 'non-bubble';
+        bubble.textContent = `${item.text} ${item.emoji}`;
+        messagesNonContainer.appendChild(bubble);
+        messagesNonIndex++;
+      }
+    });
+
+    // "Oui" Button Interaction Flow
+    btnOui.addEventListener('click', () => {
+      etapeQuestion.classList.add('hidden');
+      etapeChoix.classList.remove('hidden');
+      triggerConfetti();
+    });
+
+    // Activity Choices Interaction Flow
+    const activityButtons = choixGroupContainer.querySelectorAll('button');
+    activityButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const activite = e.target.getAttribute('data-activite');
+        activiteChoisie = activite;
+
+        // Store response in sessionStorage
+        sessionStorage.setItem('dateResponse', activite);
+
+        // Hide activity selection buttons
+        choixGroupContainer.classList.add('hidden');
+
+        // Display selection and final message
+        choixAffiche.innerHTML = `<div style="font-size: 1.5rem; font-weight: 700; color: #d45a8a; margin: 15px 0;">${activite}</div>`;
+        messageFinal.textContent = `C'est noté ! À ton retour pour le ${activite}… hâte de te voir ❤️`;
+        psFooter.classList.remove('hidden');
+
+        // Show banner on same device
+        bandeauReponse.textContent = `💕 Sa réponse : ${activite}`;
+        bandeauReponse.style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>
